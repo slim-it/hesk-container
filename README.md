@@ -38,6 +38,6 @@ Then open `http://localhost:8080/install/` and complete Hesk's installer.
 
 ## Download behavior
 
-The build script first checks `https://www.hesk.com/download-legacy.php` for the version in `VERSION`. If the version is archived, it downloads the stable archive URL. If the version is the current release and not archived yet, it falls back to `https://www.hesk.com/download.php` and fails unless that page advertises the same version.
+The build script checks `https://www.hesk.com/download-legacy.php` for the version in `VERSION` and downloads the stable archive URL from there. It intentionally does not use the current-release form download, so this image may lag Hesk's newest release until that release appears in the archive.
 
 Do not commit Hesk archives, generated settings, database credentials, or installed runtime data to this repository.
