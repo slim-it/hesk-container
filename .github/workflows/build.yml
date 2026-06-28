@@ -56,7 +56,5 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           build-args: |
             HESK_VERSION=${{ steps.version.outputs.version }}
-          provenance: false
-          sbom: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
