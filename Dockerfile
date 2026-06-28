@@ -24,16 +24,17 @@ COPY scripts/download-hesk.sh /usr/local/bin/download-hesk
 RUN test -n "${HESK_VERSION}" \
     && chmod +x /usr/local/bin/download-hesk \
     && rm -rf /var/www/html/* \
-    && mkdir -p /usr/local/share/hesk-defaults /usr/local/share/hesk-install \
+    && mkdir -p /usr/local/share/hesk-defaults /usr/local/share/hesk-install /usr/local/share/hesk-language-defaults \
     && download-hesk "${HESK_VERSION}" /tmp/hesk.zip \
     && unzip -q /tmp/hesk.zip -d /var/www/html \
     && cp /var/www/html/hesk_settings.inc.php /usr/local/share/hesk-defaults/hesk_settings.inc.php \
     && cp -a /var/www/html/install/. /usr/local/share/hesk-install/ \
-    && rm -rf /tmp/hesk.zip /var/www/html/attachments /var/www/html/cache /var/www/html/hesk_settings.inc.php /var/www/html/install \
+    && cp -a /var/www/html/language/. /usr/local/share/hesk-language-defaults/ \
+    && rm -rf /tmp/hesk.zip /var/www/html/attachments /var/www/html/hesk_settings.inc.php /var/www/html/install /var/www/html/language \
     && ln -s /data/attachments /var/www/html/attachments \
-    && ln -s /data/cache /var/www/html/cache \
+    && ln -s /data/language /var/www/html/language \
     && ln -s /data/hesk_settings.inc.php /var/www/html/hesk_settings.inc.php \
-    && chown -R www-data:www-data /var/www/html /usr/local/share/hesk-defaults /usr/local/share/hesk-install
+    && chown -R www-data:www-data /var/www/html /usr/local/share/hesk-defaults /usr/local/share/hesk-install /usr/local/share/hesk-language-defaults
 
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY php.ini /usr/local/etc/php/conf.d/zz-hesk.ini

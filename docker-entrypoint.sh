@@ -1,10 +1,14 @@
 #!/usr/bin/env sh
 set -eu
 
-install -d -o www-data -g www-data /data /data/attachments /data/cache
+install -d -o www-data -g www-data /data /data/attachments /data/language
 
 if [ ! -e /data/hesk_settings.inc.php ]; then
   cp /usr/local/share/hesk-defaults/hesk_settings.inc.php /data/hesk_settings.inc.php
+fi
+
+if [ -z "$(find /data/language -mindepth 1 -maxdepth 1 2>/dev/null)" ]; then
+  cp -a /usr/local/share/hesk-language-defaults/. /data/language/
 fi
 
 image_version="$(tr -d '\r' < /usr/local/share/hesk-install/install_functions.inc.php | awk -F"'" '/HESK_NEW_VERSION/ {print $4; exit}')"
