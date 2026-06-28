@@ -7,8 +7,8 @@ if [ ! -e /data/hesk_settings.inc.php ]; then
   cp /usr/local/share/hesk-defaults/hesk_settings.inc.php /data/hesk_settings.inc.php
 fi
 
-image_version="$(tr -d '\r' < /usr/local/share/hesk-install/install_functions.inc.php | sed -nE "s/^define\('HESK_NEW_VERSION','([^']+)'\);/\1/p" | head -n1)"
-installed_version="$(tr -d '\r' < /data/hesk_settings.inc.php | sed -nE "s/^\$hesk_settings\['hesk_version'\]='([^']*)';/\1/p" | head -n1)"
+image_version="$(tr -d '\r' < /usr/local/share/hesk-install/install_functions.inc.php | awk -F"'" '/HESK_NEW_VERSION/ {print $4; exit}')"
+installed_version="$(tr -d '\r' < /data/hesk_settings.inc.php | awk -F"'" '/hesk_version/ {print $4; exit}')"
 install_mode="${HESK_INSTALL_MODE:-auto}"
 expose_install=0
 
