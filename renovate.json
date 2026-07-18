@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "dependencyDashboard": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "VERSION holds the Hesk version, tracked against the legacy download archive: the newest version there is the newest the build can fetch (current releases sit behind a human-gated form until superseded, so tracking hesk.com/version or the changelog would propose versions the build cannot download).",
+      "managerFilePatterns": [
+        "/^VERSION$/"
+      ],
+      "matchStrings": [
+        "(?<currentValue>.+)\\n"
+      ],
+      "depNameTemplate": "hesk",
+      "datasourceTemplate": "custom.hesk-archive",
+      "versioningTemplate": "loose"
+    }
+  ],
+  "customDatasources": {
+    "hesk-archive": {
+      "defaultRegistryUrlTemplate": "https://www.hesk.com/download-legacy.php",
+      "format": "plain"
+    }
+  },
+  "packageRules": [
+    {
+      "description": "The archive page is HTML: plain format yields whitespace tokens, and each token carrying a dotted version is a release candidate",
+      "matchDepNames": [
+        "hesk"
+      ],
+      "extractVersion": "^.*?(?<version>\\d+\\.\\d+\\.\\d+).*$"
+    }
+  ]
+}
