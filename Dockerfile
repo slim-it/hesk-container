@@ -4,8 +4,8 @@ ARG HESK_VERSION
 LABEL org.opencontainers.image.title="Hesk container"
 LABEL org.opencontainers.image.description="Hesk help desk on PHP Apache"
 LABEL org.opencontainers.image.source="https://github.com/slim-it/hesk-container"
-# CI overwrites the standard image.version annotation with the tag, which
-# carries a build number, so this is where the Hesk version itself is recorded.
+# Not org.opencontainers.image.version: CI overwrites that annotation
+# with the tag.
 LABEL nl.slim-it.hesk.version="${HESK_VERSION}"
 
 RUN apt-get update \
