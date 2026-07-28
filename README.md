@@ -2,7 +2,9 @@
 
 Container image for Hesk Free, built from the official Hesk download and a maintained PHP Apache runtime.
 
-`VERSION` is the single source of truth for the Hesk version. CI reads it for both the Docker build argument and the image tag.
+`VERSION` is the single source of truth for the Hesk version. CI reads it for the Docker build argument and appends the build number to it for the image tag.
+
+The build number is part of the tag so that every rebuild publishes a strictly higher one. A base image update, or anything else that changes the image without changing Hesk, otherwise replaces the contents of an existing tag in place — and a consumer pinning that tag has no way to notice there is anything new. The Hesk version inside an image is recorded in its `nl.slim-it.hesk.version` label.
 
 The image contains the Hesk application files. Runtime state is kept in `/data`:
 
@@ -17,7 +19,7 @@ The container symlinks those paths into `/var/www/html` at runtime, so the Hesk 
 CI publishes:
 
 ```text
-ghcr.io/slim-it/hesk-container:<version>
+ghcr.io/slim-it/hesk-container:<hesk-version>.<build>
 ghcr.io/slim-it/hesk-container:latest
 ghcr.io/slim-it/hesk-container:sha-<git-sha>
 ```

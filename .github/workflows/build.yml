@@ -26,6 +26,12 @@ jobs:
           version="$(tr -d '[:space:]' < VERSION)"
           test -n "$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          # Release tag: the Hesk version with the build number as a final
+          # component, so that a rebuild — a base image update, or anything
+          # else that changes the image without changing Hesk — publishes a
+          # strictly higher tag instead of silently replacing the contents of
+          # an existing one.
+          echo "release=${version}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4.2.0
@@ -44,7 +50,7 @@ jobs:
         with:
           images: ghcr.io/slim-it/hesk-container
           tags: |
-            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.release }}
             type=sha,prefix=sha-
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
