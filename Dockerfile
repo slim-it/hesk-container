@@ -40,6 +40,8 @@ RUN test -n "${HESK_VERSION}" \
 
 COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY php.ini /usr/local/etc/php/conf.d/zz-hesk.ini
+# zz- so it loads after security.conf, whose values it overrides.
+COPY apache-security.conf /etc/apache2/conf-enabled/zz-security.conf
 COPY docker-entrypoint.sh /usr/local/bin/hesk-entrypoint
 RUN chmod +x /usr/local/bin/hesk-entrypoint
 
