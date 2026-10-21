@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-install -d -o www-data -g www-data /data /data/attachments /data/language
+install -d /data/attachments /data/language
+
+find /var/www/html -mindepth 1 -delete
+cp -a /usr/src/hesk/. /var/www/html/
 
 if [ ! -e /data/hesk_settings.inc.php ]; then
   cp /usr/local/share/hesk-defaults/hesk_settings.inc.php /data/hesk_settings.inc.php
@@ -39,13 +42,10 @@ case "$install_mode" in
     ;;
 esac
 
-rm -rf /var/www/html/install
 if [ "$expose_install" = "1" ]; then
   cp -a /usr/local/share/hesk-install /var/www/html/install
-  chown -R www-data:www-data /var/www/html/install
 fi
 
-chown -R www-data:www-data /data
 chmod 0640 /data/hesk_settings.inc.php || true
 
 exec "$@"

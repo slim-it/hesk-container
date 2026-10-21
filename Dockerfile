@@ -1,8 +1,8 @@
-FROM php:8.5.11-apache-bookworm
+FROM php:8.5.11-fpm-trixie
 
 ARG HESK_VERSION
 LABEL org.opencontainers.image.title="Hesk container"
-LABEL org.opencontainers.image.description="Hesk help desk on PHP Apache"
+LABEL org.opencontainers.image.description="Hesk help desk on PHP-FPM"
 LABEL org.opencontainers.image.source="https://github.com/slim-it/hesk-container"
 # Not org.opencontainers.image.version: CI overwrites that annotation
 # with the tag.
@@ -19,32 +19,34 @@ RUN apt-get update \
         libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" gd mysqli pdo_mysql zip \
-    && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
+# The application lives in /usr/src/hesk and the entrypoint copies it into the
+# web root at every start, so a web root shared with a web server container
+# always holds exactly the code this image ships.
 COPY scripts/download-hesk.sh /usr/local/bin/download-hesk
 RUN test -n "${HESK_VERSION}" \
     && chmod +x /usr/local/bin/download-hesk \
-    && rm -rf /var/www/html/* \
-    && mkdir -p /usr/local/share/hesk-defaults /usr/local/share/hesk-install /usr/local/share/hesk-language-defaults \
+    && mkdir -p /usr/src/hesk /usr/local/share/hesk-defaults /usr/local/share/hesk-install /usr/local/share/hesk-language-defaults \
     && download-hesk "${HESK_VERSION}" /tmp/hesk.zip \
-    && unzip -q /tmp/hesk.zip -d /var/www/html \
-    && cp /var/www/html/hesk_settings.inc.php /usr/local/share/hesk-defaults/hesk_settings.inc.php \
-    && cp -a /var/www/html/install/. /usr/local/share/hesk-install/ \
-    && cp -a /var/www/html/language/. /usr/local/share/hesk-language-defaults/ \
-    && rm -rf /tmp/hesk.zip /var/www/html/attachments /var/www/html/hesk_settings.inc.php /var/www/html/install /var/www/html/language \
-    && ln -s /data/attachments /var/www/html/attachments \
-    && ln -s /data/language /var/www/html/language \
-    && ln -s /data/hesk_settings.inc.php /var/www/html/hesk_settings.inc.php \
-    && chown -R www-data:www-data /var/www/html /usr/local/share/hesk-defaults /usr/local/share/hesk-install /usr/local/share/hesk-language-defaults
+    && unzip -q /tmp/hesk.zip -d /usr/src/hesk \
+    && cp /usr/src/hesk/hesk_settings.inc.php /usr/local/share/hesk-defaults/hesk_settings.inc.php \
+    && cp -a /usr/src/hesk/install/. /usr/local/share/hesk-install/ \
+    && cp -a /usr/src/hesk/language/. /usr/local/share/hesk-language-defaults/ \
+    && rm -rf /tmp/hesk.zip /usr/src/hesk/attachments /usr/src/hesk/hesk_settings.inc.php /usr/src/hesk/install /usr/src/hesk/language \
+    && ln -s /data/attachments /usr/src/hesk/attachments \
+    && ln -s /data/language /usr/src/hesk/language \
+    && ln -s /data/hesk_settings.inc.php /usr/src/hesk/hesk_settings.inc.php \
+    && rm -rf /var/www/html/* \
+    && mkdir -p /data \
+    && chown -R www-data:www-data /data /var/www/html /usr/src/hesk /usr/local/share/hesk-defaults /usr/local/share/hesk-install /usr/local/share/hesk-language-defaults
 
-COPY apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY php.ini /usr/local/etc/php/conf.d/zz-hesk.ini
-# zz- so it loads after security.conf, whose values it overrides.
-COPY apache-security.conf /etc/apache2/conf-enabled/zz-security.conf
 COPY docker-entrypoint.sh /usr/local/bin/hesk-entrypoint
 RUN chmod +x /usr/local/bin/hesk-entrypoint
 
+# Numeric, so a runtime that requires a non-root user can verify it.
+USER 33:33
 VOLUME ["/data"]
 ENTRYPOINT ["hesk-entrypoint"]
-CMD ["apache2-foreground"]
+CMD ["php-fpm"]
