@@ -26,7 +26,7 @@ case "$install_mode" in
   auto)
     if [ -z "$installed_version" ]; then
       expose_install=1
-    elif grep -Eq "\$hesk_settings\['db_host'\]='localhost';|\$hesk_settings\['db_user'\]='test';|\$hesk_settings\['db_pass'\]='test';" /data/hesk_settings.inc.php; then
+    elif grep -Fq -e "\$hesk_settings['db_host']='localhost';" -e "\$hesk_settings['db_user']='test';" -e "\$hesk_settings['db_pass']='test';" /data/hesk_settings.inc.php; then
       expose_install=1
     elif [ "$installed_version" != "$image_version" ]; then
       expose_install=1
