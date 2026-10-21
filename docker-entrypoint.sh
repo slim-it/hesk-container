@@ -4,7 +4,9 @@ set -eu
 install -d /data/attachments /data/language
 
 find /var/www/html -mindepth 1 -delete
-cp -a /usr/src/hesk/. /var/www/html/
+# The volume root belongs to the runtime, so the unprivileged process must not
+# try to preserve the source directory's ownership or timestamps on it.
+cp -R /usr/src/hesk/. /var/www/html/
 
 if [ ! -e /data/hesk_settings.inc.php ]; then
   cp /usr/local/share/hesk-defaults/hesk_settings.inc.php /data/hesk_settings.inc.php
