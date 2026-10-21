@@ -1,4 +1,4 @@
-FROM php:8.5-apache-bookworm
+FROM php:8.5.11-apache-bookworm
 
 ARG HESK_VERSION
 LABEL org.opencontainers.image.title="Hesk container"
