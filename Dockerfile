@@ -1,4 +1,4 @@
-FROM php:8.5.12-fpm-trixie
+FROM php:8.6.0-fpm-trixie
 
 ARG HESK_VERSION
 LABEL org.opencontainers.image.title="Hesk container"
